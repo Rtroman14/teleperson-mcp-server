@@ -9,7 +9,7 @@ import axios from "axios";
 
         const response = await axios.get(`https://r.jina.ai/https://${domain}`, {
             headers: {
-                Authorization: `Bearer ${JINYA_API_KEY}`,
+                Authorization: `Bearer ${process.env.JINYA_API_KEY}`,
                 "X-Md-Bullet-List-Marker": "-",
                 "X-Md-Em-Delimiter": "*",
                 "X-Remove-Selector": `header, nav, input, iframe, footer, .footer, #footer, #nav, .elementor-button, [data-elementor-type="header"], [style*="display: none"], [style*="visibility: hidden"], aside, script, button, style, img`,
