@@ -1,7 +1,8 @@
 import { format } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
 
 class Helpers {
-    getAvailabilityWindow(targetDate, availability) {
+    getAvailabilityWindow({ targetDate, availability, timeZone }) {
         // Get day of week from target date
         const dayOfWeek = format(new Date(targetDate), "EEEE");
 
@@ -15,11 +16,21 @@ class Helpers {
             };
         }
 
+        // Create date objects for start and end times on the target date
+        const startDateTime = new Date(`${targetDate}T${availabilityWindow.startTime}:00`);
+        const endDateTime = new Date(`${targetDate}T${availabilityWindow.endTime}:00`);
+
+        // Format times in user's timezone with h:mm a format
+        const startTimeLocal = formatInTimeZone(startDateTime, timeZone, "h:mm a");
+        const endTimeLocal = formatInTimeZone(endDateTime, timeZone, "h:mm a");
+
         return {
             success: true,
             data: {
                 startTime: availabilityWindow.startTime,
                 endTime: availabilityWindow.endTime,
+                startTimeLocal,
+                endTimeLocal,
             },
         };
     }

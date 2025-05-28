@@ -1,7 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import Cal from "./src/Cal.js";
-import _ from "./src/Helpers.js";
+import Cal from "./Cal.js";
+import _ from "./Helpers.js";
 import { toZonedTime, formatInTimeZone } from "date-fns-tz";
 
 export const server = new McpServer({
@@ -47,7 +47,7 @@ server.tool(
             const availability = schedules.data.data[0].availability;
 
             // Get availability window for the target date
-            const availabilityResult = _.getAvailabilityWindow(date, availability);
+            const availabilityResult = _.getAvailabilityWindow({ date, availability, timeZone });
             if (!availabilityResult.success) {
                 return {
                     content: [
@@ -87,7 +87,7 @@ server.tool(
 
             // Format the availability window times
             const availabilityWindow = availabilityResult.data;
-            const availabilityText = `Available hours: ${availabilityWindow.start} - ${availabilityWindow.end}`;
+            const availabilityText = `Available hours: ${availabilityWindow.startTimeLocal} - ${availabilityWindow.startTimeLocal}`;
 
             return {
                 content: [
@@ -165,6 +165,7 @@ server.tool(
                 ],
             };
         } catch (error) {
+            console.error("create_booking: ", error);
             return {
                 content: [
                     {

@@ -1,8 +1,8 @@
 import express from "express";
 import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 
-import { server as bookingServer } from "./booking.js";
-import { server as websiteServer } from "./website.js";
+import { server as bookingServer } from "./src/booking.js";
+import { server as websiteServer } from "./src/website.js";
 
 const app = express();
 

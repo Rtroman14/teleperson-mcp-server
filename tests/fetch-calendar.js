@@ -8,9 +8,9 @@
 // Fetch calendars and extract credential information
 import Cal from "../src/Cal.js";
 import { toZonedTime, formatInTimeZone } from "date-fns-tz";
-import cityTimezones from "city-timezones";
-import { format } from "date-fns";
-import _ from "../src/_.js";
+// import cityTimezones from "city-timezones";
+// import { format } from "date-fns";
+import _ from "../src/Helpers.js";
 
 // Function to fetch calendars and print their details
 const fetchCalendars = async () => {
@@ -43,7 +43,7 @@ const fetchBusyTimes = async ({ targetDate }) => {
         const availability = schedules.data.data[0].availability;
 
         // Get availability window for the target date
-        const availabilityResult = _.getAvailabilityWindow(targetDate, availability);
+        const availabilityResult = _.getAvailabilityWindow({ targetDate, availability, timeZone });
         if (!availabilityResult.success) return availabilityResult;
 
         const startDate = new Date(`${targetDate}T00:00:00`);
@@ -90,7 +90,7 @@ const fetchBusyTimes = async ({ targetDate }) => {
 
 const checkCalendar = async () => {
     try {
-        const targetDate = "2025-05-20";
+        const targetDate = "2025-05-29";
 
         // const cityLookup = cityTimezones.findFromCityStateProvince("Aurora CO");
         // console.log(cityLookup);
@@ -106,9 +106,9 @@ const checkCalendar = async () => {
 const createBooking = async () => {
     try {
         // Create booking on 2025-05-21
-        const bookingDate = "2025-05-21";
+        const bookingDate = "2025-05-23";
         const timeZone = "America/Denver";
-        const startTime = "09:00";
+        const startTime = "11:00";
 
         // Create a zoned time for 9:00 AM Denver time
         const localtime = toZonedTime(new Date(`${bookingDate}T${startTime}:00`), timeZone);
