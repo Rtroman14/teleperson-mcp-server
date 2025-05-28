@@ -9,7 +9,7 @@
             "request": "launch",
             "name": "Launch Program",
             "skipFiles": ["<node_internals>/**"],
-            "program": "${workspaceFolder}/tests/fetch-calendar.js"
+            "program": "${workspaceFolder}/tests/check-availability.js"
         }
     ]
 }
