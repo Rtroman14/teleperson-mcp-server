@@ -246,6 +246,64 @@ class Cal {
             };
         }
     };
+
+    fetchSlotsForDay = async ({ eventTypeId, date, timeZone }) => {
+        try {
+            // Validate required parameters
+            if (!eventTypeId || !date) {
+                throw new Error("eventTypeId and date parameters are required");
+            }
+
+            // Build query parameters
+            const queryParams = {
+                start: date,
+                end: date,
+                eventTypeId: eventTypeId,
+            };
+
+            // Add timeZone if provided
+            if (timeZone) {
+                queryParams.timeZone = timeZone;
+            }
+
+            const response = await axios({
+                method: "GET",
+                url: `${this.baseUrl}/slots`,
+                headers: {
+                    Authorization: this.apiKey,
+                    "cal-api-version": "2024-09-04",
+                },
+                params: queryParams,
+            });
+
+            const slotsData = response.data.data;
+
+            // Check if slotsData is empty or has no slots for the date
+            if (!slotsData || Object.keys(slotsData).length === 0 || !slotsData[date]) {
+                return {
+                    success: true,
+                    data: [],
+                };
+            }
+
+            // Format the slots with readable times
+            const formattedSlots = slotsData[date].map((slot) =>
+                formatInTimeZone(new Date(slot.start), timeZone, "h:mm a")
+            );
+
+            return {
+                success: true,
+                data: formattedSlots,
+            };
+        } catch (error) {
+            console.error("fetchSlotsForDay() -->", error.message);
+            return {
+                success: false,
+                message: error.message,
+                data: [],
+            };
+        }
+    };
 }
 
 export default new Cal();

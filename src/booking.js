@@ -1,7 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import _ from "./Helpers.js";
-import checkAvailability from "./check-availability.js";
+// import checkAvailability from "./check-availability.js";
 import createBooking from "./create-booking.js";
 
 export const server = new McpServer({
@@ -19,24 +19,26 @@ server.tool(
             .describe("The user's timezone (e.g., 'America/Denver', 'America/Chicago')"),
     },
     async ({ date, timeZone }) => {
-        const result = await checkAvailability(date, timeZone);
+        const result = await Cal.fetchSlotsForDay({
+            eventTypeId: 2512300,
+            date,
+            timeZone,
+        });
 
-        if (!result.success) {
-            return {
-                content: [
-                    {
-                        type: "text",
-                        text: `Error: ${result.message}`,
-                    },
-                ],
-            };
+        const formattedDate = format(new Date(date), "PPPP");
+        let resultText = `There are no available time slots for this day (${formattedDate})`;
+
+        if (result.success && result.data.length) {
+            resultText = `Here are the available time slots for ${formattedDate}: ${result.data.join(
+                ", "
+            )}`;
         }
 
         return {
             content: [
                 {
                     type: "text",
-                    text: result.data.text,
+                    text: resultText,
                 },
             ],
         };
@@ -53,27 +55,26 @@ server.tool(
             .describe("The user's timezone (e.g., 'America/Denver', 'America/Chicago')"),
     },
     async ({ date, timeZone }) => {
-        const result = await checkAvailability(date, timeZone);
+        const result = await Cal.fetchSlotsForDay({
+            eventTypeId: 2512300,
+            date,
+            timeZone,
+        });
 
-        if (!result.success) {
-            return {
-                content: [
-                    {
-                        type: "text",
-                        text: `Error: ${result.message}`,
-                    },
-                ],
-            };
+        const formattedDate = format(new Date(date), "PPPP");
+        let resultText = `There are no available time slots for this day (${formattedDate})`;
+
+        if (result.success && result.data.length) {
+            resultText = `Here are the available time slots for ${formattedDate}: ${result.data.join(
+                ", "
+            )}`;
         }
-
-        // Log the availability window for debugging
-        console.log(`availabilityWindow -->`, result.data.availabilityWindow);
 
         return {
             content: [
                 {
                     type: "text",
-                    text: result.data.text,
+                    text: resultText,
                 },
             ],
         };

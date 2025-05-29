@@ -75,18 +75,19 @@ const checkAvailability = async (date, userTimeZone) => {
             const start = formatInTimeZone(new Date(meeting.start), userTimeZone, "h:mm a");
             const end = formatInTimeZone(new Date(meeting.end), userTimeZone, "h:mm a");
 
-            return {
-                busy: `${start} - ${end}`,
-            };
+            return `${start} - ${end}`;
         });
+
+        // De-duplicate busyTimes by converting to Set and back to array
+        const uniqueBusyTimes = [...new Set(busyTimes)];
 
         // Format the availability window times (already in user's timezone from getAvailabilityWindow)
         const availabilityWindow = availabilityResult.data;
         const availabilityText = `Available hours: ${availabilityWindow.startTimeLocal} - ${availabilityWindow.endTimeLocal}`;
 
         const resultText = `${availabilityText}. ${
-            busyTimes.length
-                ? `The user is busy during these times: ${JSON.stringify(busyTimes)}`
+            uniqueBusyTimes.length
+                ? `The user is busy during these times: ${JSON.stringify(uniqueBusyTimes)}`
                 : `User is free all day on ${date}.`
         }`;
 
@@ -95,7 +96,7 @@ const checkAvailability = async (date, userTimeZone) => {
             data: {
                 text: resultText,
                 availabilityWindow,
-                busyTimes,
+                busyTimes: uniqueBusyTimes,
             },
         };
     } catch (error) {

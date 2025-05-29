@@ -33,8 +33,8 @@ class Helpers {
         return {
             success: true,
             data: {
-                startTime: availabilityWindow.startTime,
-                endTime: availabilityWindow.endTime,
+                // startTime: availabilityWindow.startTime,
+                // endTime: availabilityWindow.endTime,
                 startTimeLocal,
                 endTimeLocal,
             },
