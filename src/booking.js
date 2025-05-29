@@ -15,12 +15,12 @@ server.tool(
     "Check if a user is available at a specific date and time",
     {
         date: z.string().describe("The date to check availability for (YYYY-MM-DD format)"),
-        userTimeZone: z
+        timeZone: z
             .string()
             .describe("The user's timezone (e.g., 'America/Denver', 'America/Chicago')"),
     },
-    async ({ date, userTimeZone }) => {
-        const result = await checkAvailability(date, userTimeZone);
+    async ({ date, timeZone }) => {
+        const result = await checkAvailability(date, timeZone);
 
         if (!result.success) {
             return {
@@ -49,12 +49,12 @@ server.tool(
     "Check if a user is available at a specific date and time",
     {
         date: z.string().describe("The date to check availability for (YYYY-MM-DD format)"),
-        userTimeZone: z
+        timeZone: z
             .string()
             .describe("The user's timezone (e.g., 'America/Denver', 'America/Chicago')"),
     },
-    async ({ date, userTimeZone }) => {
-        const result = await checkAvailability(date, userTimeZone);
+    async ({ date, timeZone }) => {
+        const result = await checkAvailability(date, timeZone);
 
         if (!result.success) {
             return {
