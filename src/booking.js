@@ -1,9 +1,8 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import Cal from "./Cal.js";
 import _ from "./Helpers.js";
-import { toZonedTime } from "date-fns-tz";
 import checkAvailability from "./check-availability.js";
+import createBooking from "./create-booking.js";
 
 export const server = new McpServer({
     name: "BookingToolServer",
@@ -95,51 +94,34 @@ server.tool(
         summary: z.string().optional().describe("Optional: Summary of the meeting"),
     },
     async ({ date, startTime, timeZone, attendeeName, attendeeEmail, summary = "" }) => {
-        try {
-            // Create a zoned time for the meeting
-            const localtime = toZonedTime(new Date(`${date}T${startTime}:00`), timeZone);
+        const result = await createBooking(
+            date,
+            startTime,
+            timeZone,
+            attendeeName,
+            attendeeEmail,
+            summary
+        );
 
-            // Convert to UTC ISO string
-            const startTimeUTC = localtime.toISOString();
-
-            const bookingData = {
-                start: startTimeUTC,
-                attendee: {
-                    name: attendeeName,
-                    email: attendeeEmail,
-                    timeZone: timeZone,
-                },
-                eventTypeId: 2485287,
-                metadata: {
-                    summary: summary,
-                },
-            };
-
-            const response = await Cal.createBooking(bookingData);
-
-            if (!response.success) {
-                throw new Error(response.message || "Failed to create booking");
-            }
-
+        if (!result.success) {
             return {
                 content: [
                     {
                         type: "text",
-                        text: `Booking created successfully for ${attendeeName} on ${date} at ${startTime}.`,
-                    },
-                ],
-            };
-        } catch (error) {
-            console.error("create_booking: ", error);
-            return {
-                content: [
-                    {
-                        type: "text",
-                        text: `Error creating booking: ${error.message}`,
+                        text: `Error: ${result.message}`,
                     },
                 ],
             };
         }
+
+        return {
+            content: [
+                {
+                    type: "text",
+                    text: result.message,
+                },
+            ],
+        };
     }
 );
 
@@ -157,50 +139,33 @@ server.tool(
         summary: z.string().optional().describe("Optional: Summary of the meeting"),
     },
     async ({ date, startTime, timeZone, attendeeName, attendeeEmail, summary = "" }) => {
-        try {
-            // Create a zoned time for the meeting
-            const localtime = toZonedTime(new Date(`${date}T${startTime}:00`), timeZone);
+        const result = await createBooking(
+            date,
+            startTime,
+            timeZone,
+            attendeeName,
+            attendeeEmail,
+            summary
+        );
 
-            // Convert to UTC ISO string
-            const startTimeUTC = localtime.toISOString();
-
-            const bookingData = {
-                start: startTimeUTC,
-                attendee: {
-                    name: attendeeName,
-                    email: attendeeEmail,
-                    timeZone: timeZone,
-                },
-                eventTypeId: 2485287,
-                metadata: {
-                    summary: summary,
-                },
-            };
-
-            const response = await Cal.createBooking(bookingData);
-
-            if (!response.success) {
-                throw new Error(response.message || "Failed to create booking");
-            }
-
+        if (!result.success) {
             return {
                 content: [
                     {
                         type: "text",
-                        text: `Booking created successfully for ${attendeeName} on ${date} at ${startTime}.`,
-                    },
-                ],
-            };
-        } catch (error) {
-            console.error("create_booking: ", error);
-            return {
-                content: [
-                    {
-                        type: "text",
-                        text: `Error creating booking: ${error.message}`,
+                        text: `Error: ${result.message}`,
                     },
                 ],
             };
         }
+
+        return {
+            content: [
+                {
+                    type: "text",
+                    text: result.message,
+                },
+            ],
+        };
     }
 );
