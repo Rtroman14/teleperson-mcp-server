@@ -4,6 +4,7 @@ import _ from "./Helpers.js";
 // import checkAvailability from "./check-availability.js";
 import createBooking from "./create-booking.js";
 import Cal from "./Cal.js";
+import { format } from "date-fns";
 
 export const server = new McpServer({
     name: "BookingToolServer",
