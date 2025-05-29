@@ -19,7 +19,7 @@ const fetchCalendars = async () => {
     }
 };
 
-const checkAvailability = async (date) => {
+const checkAvailability = async (date, userTimeZone) => {
     try {
         // Fetch calendars and get credentials
         const { credentialId, externalId } = await fetchCalendars();
@@ -28,16 +28,23 @@ const checkAvailability = async (date) => {
         if (!me.success) throw new Error(me.message);
         const timeZone = me.data.data.timeZone;
 
+        console.log(`Calendar owner's timeZone -->`, timeZone);
+        console.log(`User's timeZone -->`, userTimeZone);
+
         // Fetch schedules to get availability
         const schedules = await Cal.fetchSchedules();
         if (!schedules.success) throw new Error(schedules.message);
         const availability = schedules.data.data[0].availability;
+        const availabilityTimezone = schedules.data.data[0].timeZone;
 
-        // Get availability window for the target date
+        console.log(`availabilityTimezone -->`, availabilityTimezone);
+
+        // Get availability window for the target date using proper timezone conversion
         const availabilityResult = _.getAvailabilityWindow({
             targetDate: date,
             availability,
-            timeZone,
+            calendarOwnerTimeZone: availabilityTimezone,
+            userTimeZone: userTimeZone,
         });
         if (!availabilityResult.success) {
             return {
@@ -49,7 +56,7 @@ const checkAvailability = async (date) => {
         const startDate = new Date(`${date}T00:00:00`);
         const endDate = new Date(`${date}T23:59:59`);
 
-        // Format the dates with time component
+        // Format the dates with time component using calendar owner's timezone for API call
         const dateFrom = formatInTimeZone(startDate, timeZone, "yyyy-MM-dd'T'HH:mm:ss");
         const dateTo = formatInTimeZone(endDate, timeZone, "yyyy-MM-dd'T'HH:mm:ss");
 
@@ -64,15 +71,16 @@ const checkAvailability = async (date) => {
         if (!busyTimesResponse.success) throw new Error(busyTimesResponse.message);
 
         const busyTimes = busyTimesResponse.data.data.map((meeting) => {
-            const start = formatInTimeZone(new Date(meeting.start), timeZone, "h:mm a");
-            const end = formatInTimeZone(new Date(meeting.end), timeZone, "h:mm a");
+            // Convert busy times to user's timezone
+            const start = formatInTimeZone(new Date(meeting.start), userTimeZone, "h:mm a");
+            const end = formatInTimeZone(new Date(meeting.end), userTimeZone, "h:mm a");
 
             return {
                 busy: `${start} - ${end}`,
             };
         });
 
-        // Format the availability window times
+        // Format the availability window times (already in user's timezone from getAvailabilityWindow)
         const availabilityWindow = availabilityResult.data;
         const availabilityText = `Available hours: ${availabilityWindow.startTimeLocal} - ${availabilityWindow.endTimeLocal}`;
 
@@ -88,7 +96,6 @@ const checkAvailability = async (date) => {
                 text: resultText,
                 availabilityWindow,
                 busyTimes,
-                timeZone,
             },
         };
     } catch (error) {

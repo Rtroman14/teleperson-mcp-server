@@ -2,7 +2,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import Cal from "./Cal.js";
 import _ from "./Helpers.js";
-import { toZonedTime, formatInTimeZone } from "date-fns-tz";
+import { toZonedTime } from "date-fns-tz";
 import checkAvailability from "./check-availability.js";
 
 export const server = new McpServer({
@@ -15,9 +15,12 @@ server.tool(
     "Check if a user is available at a specific date and time",
     {
         date: z.string().describe("The date to check availability for (YYYY-MM-DD format)"),
+        userTimeZone: z
+            .string()
+            .describe("The user's timezone (e.g., 'America/Denver', 'America/Chicago')"),
     },
-    async ({ date }) => {
-        const result = await checkAvailability(date);
+    async ({ date, userTimeZone }) => {
+        const result = await checkAvailability(date, userTimeZone);
 
         if (!result.success) {
             return {
@@ -46,9 +49,12 @@ server.tool(
     "Check if a user is available at a specific date and time",
     {
         date: z.string().describe("The date to check availability for (YYYY-MM-DD format)"),
+        userTimeZone: z
+            .string()
+            .describe("The user's timezone (e.g., 'America/Denver', 'America/Chicago')"),
     },
-    async ({ date }) => {
-        const result = await checkAvailability(date);
+    async ({ date, userTimeZone }) => {
+        const result = await checkAvailability(date, userTimeZone);
 
         if (!result.success) {
             return {
