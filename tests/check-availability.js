@@ -2,8 +2,8 @@ import checkAvailability from "../src/check-availability.js";
 
 const date = "2025-05-29";
 
-const userTimeZone = "America/Denver";
-// const userTimeZone = "America/Chicago";
+// const userTimeZone = "America/Denver";
+const userTimeZone = "America/Chicago";
 
 (async () => {
     try {

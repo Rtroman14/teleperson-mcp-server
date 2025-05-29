@@ -1,6 +1,9 @@
 import Cal from "./Cal.js";
 import { fromZonedTime } from "date-fns-tz";
 
+const RYAN_EVENT_TYPE_ID = 2485287;
+const JESSE_EVENT_TYPE_ID = 2512300;
+
 const createBooking = async (
     date,
     startTime,
@@ -27,7 +30,7 @@ const createBooking = async (
                 email: attendeeEmail,
                 timeZone: timeZone,
             },
-            eventTypeId: 2485287,
+            eventTypeId: JESSE_EVENT_TYPE_ID,
             metadata: {
                 summary: summary,
             },

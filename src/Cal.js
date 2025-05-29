@@ -5,7 +5,7 @@ import { formatInTimeZone } from "date-fns-tz";
 class Cal {
     constructor() {
         this.baseUrl = "https://api.cal.com/v2";
-        this.apiKey = process.env.CAL_API_KEY;
+        this.apiKey = process.env.CAL_API_KEY_JESSE;
     }
 
     fetchMe = async () => {
