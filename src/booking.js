@@ -11,28 +11,68 @@ export const server = new McpServer({
     version: "1.0.0",
 });
 
+const JESSE_EVENT_TYPE_ID = 2512300;
+
 server.tool(
     "check_availability",
-    "Check if a user is available at a specific date and time",
+    "Fetch available time slots in a user's calendar between two dates.",
     {
-        date: z.string().describe("The date to check availability for (YYYY-MM-DD format)"),
-        timeZone: z
+        start: z
             .string()
+            .describe("Start date (YYYY-MM-DD) to check for available slots, inclusive."),
+        end: z.string().describe("End date (YYYY-MM-DD) to check for available slots, inclusive."),
+        timeZone: z
+            .enum([
+                "America/Adak",
+                "America/Anchorage",
+                "America/Boise",
+                "America/Chicago",
+                "America/Denver",
+                "America/Detroit",
+                "America/Indiana/Indianapolis",
+                "America/Indiana/Knox",
+                "America/Indiana/Marengo",
+                "America/Indiana/Petersburg",
+                "America/Indiana/Tell_City",
+                "America/Indiana/Vevay",
+                "America/Indiana/Vincennes",
+                "America/Indiana/Winamac",
+                "America/Juneau",
+                "America/Kentucky/Louisville",
+                "America/Kentucky/Monticello",
+                "America/Los_Angeles",
+                "America/Menominee",
+                "America/Metlakatla",
+                "America/New_York",
+                "America/Nome",
+                "America/North_Dakota/Beulah",
+                "America/North_Dakota/Center",
+                "America/North_Dakota/New_Salem",
+                "America/Phoenix",
+                "America/Sitka",
+                "America/Yakutat",
+                "Pacific/Honolulu",
+            ])
             .describe("The user's timezone (e.g., 'America/Denver', 'America/Chicago')"),
     },
-    async ({ date, timeZone }) => {
-        const result = await Cal.fetchSlotsForDay({
-            eventTypeId: 2512300,
-            date,
-            timeZone,
+    async ({ start, end, timeZone }) => {
+        const result = await Cal.fetchSlotsBetweenDates({
+            eventTypeId: JESSE_EVENT_TYPE_ID,
+            start,
+            end,
+            timeZone: timeZone,
         });
 
-        const formattedDate = format(new Date(date), "PPPP");
-        let resultText = `There are no available time slots for this day (${formattedDate})`;
+        const formattedStart = format(new Date(start), "PPPP");
+        const formattedEnd = format(new Date(end), "PPPP");
 
-        if (result.success && result.data.length) {
-            resultText = `Here are the available time slots for ${formattedDate}: ${result.data.join(
-                ", "
+        let resultText = `There are no available time slots between ${formattedStart} - ${formattedEnd}`;
+
+        if (result.success && result.data && Object.values(result.data).flat().length) {
+            resultText = `Here are the available time slots between ${formattedStart} - ${formattedEnd}: ${JSON.stringify(
+                result.data,
+                null,
+                4
             )}`;
         }
 
@@ -49,26 +89,64 @@ server.tool(
 
 server.tool(
     "run-check_availability",
-    "Check if a user is available at a specific date and time",
+    "Fetch available time slots in a user's calendar between two dates.",
     {
-        date: z.string().describe("The date to check availability for (YYYY-MM-DD format)"),
-        timeZone: z
+        start: z
             .string()
+            .describe("Start date (YYYY-MM-DD) to check for available slots, inclusive."),
+        end: z.string().describe("End date (YYYY-MM-DD) to check for available slots, inclusive."),
+        timeZone: z
+            .enum([
+                "America/Adak",
+                "America/Anchorage",
+                "America/Boise",
+                "America/Chicago",
+                "America/Denver",
+                "America/Detroit",
+                "America/Indiana/Indianapolis",
+                "America/Indiana/Knox",
+                "America/Indiana/Marengo",
+                "America/Indiana/Petersburg",
+                "America/Indiana/Tell_City",
+                "America/Indiana/Vevay",
+                "America/Indiana/Vincennes",
+                "America/Indiana/Winamac",
+                "America/Juneau",
+                "America/Kentucky/Louisville",
+                "America/Kentucky/Monticello",
+                "America/Los_Angeles",
+                "America/Menominee",
+                "America/Metlakatla",
+                "America/New_York",
+                "America/Nome",
+                "America/North_Dakota/Beulah",
+                "America/North_Dakota/Center",
+                "America/North_Dakota/New_Salem",
+                "America/Phoenix",
+                "America/Sitka",
+                "America/Yakutat",
+                "Pacific/Honolulu",
+            ])
             .describe("The user's timezone (e.g., 'America/Denver', 'America/Chicago')"),
     },
-    async ({ date, timeZone }) => {
-        const result = await Cal.fetchSlotsForDay({
-            eventTypeId: 2512300,
-            date,
-            timeZone,
+    async ({ start, end, timeZone }) => {
+        const result = await Cal.fetchSlotsBetweenDates({
+            eventTypeId: JESSE_EVENT_TYPE_ID,
+            start,
+            end,
+            timeZone: timeZone,
         });
 
-        const formattedDate = format(new Date(date), "PPPP");
-        let resultText = `There are no available time slots for this day (${formattedDate})`;
+        const formattedStart = format(new Date(start), "PPPP");
+        const formattedEnd = format(new Date(end), "PPPP");
 
-        if (result.success && result.data.length) {
-            resultText = `Here are the available time slots for ${formattedDate}: ${result.data.join(
-                ", "
+        let resultText = `There are no available time slots between ${formattedStart} - ${formattedEnd}`;
+
+        if (result.success && result.data && Object.values(result.data).flat().length) {
+            resultText = `Here are the available time slots between ${formattedStart} - ${formattedEnd}: ${JSON.stringify(
+                result.data,
+                null,
+                4
             )}`;
         }
 

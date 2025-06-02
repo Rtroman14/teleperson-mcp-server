@@ -304,6 +304,64 @@ class Cal {
             };
         }
     };
+
+    fetchSlotsBetweenDates = async ({ eventTypeId, start, end, timeZone }) => {
+        try {
+            // Validate required parameters
+            if (!eventTypeId) {
+                throw new Error("eventTypeId and date parameters are required");
+            }
+
+            // Build query parameters
+            const queryParams = {
+                start,
+                end,
+                eventTypeId: eventTypeId,
+            };
+
+            // Add timeZone if provided
+            if (timeZone) {
+                queryParams.timeZone = timeZone;
+            }
+
+            const response = await axios({
+                method: "GET",
+                url: `${this.baseUrl}/slots`,
+                headers: {
+                    Authorization: this.apiKey,
+                    "cal-api-version": "2024-09-04",
+                },
+                params: queryParams,
+            });
+
+            const slotsData = response.data.data;
+            const formattedSlotsData = {};
+
+            if (slotsData && typeof slotsData === "object") {
+                Object.keys(slotsData).forEach((date) => {
+                    if (Array.isArray(slotsData[date]) && slotsData[date].length > 0) {
+                        formattedSlotsData[date] = slotsData[date].map((slot) =>
+                            formatInTimeZone(new Date(slot.start), timeZone, "h:mm a")
+                        );
+                    } else {
+                        formattedSlotsData[date] = [];
+                    }
+                });
+            }
+
+            return {
+                success: true,
+                data: formattedSlotsData,
+            };
+        } catch (error) {
+            console.error("fetchSlotsBetweenDates() -->", error.message);
+            return {
+                success: false,
+                message: error.message,
+                data: {},
+            };
+        }
+    };
 }
 
 export default new Cal();

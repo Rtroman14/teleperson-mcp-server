@@ -9,7 +9,7 @@
             "request": "launch",
             "name": "Launch Program",
             "skipFiles": ["<node_internals>/**"],
-            "program": "${workspaceFolder}/tests/fetch-slots.js"
+            "program": "${workspaceFolder}/tests/fetch-slots-between-dates.js"
             // "program": "${workspaceFolder}/tests/check-availability.js"
         }
     ]
