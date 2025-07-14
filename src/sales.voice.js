@@ -16,7 +16,7 @@ export const server = new McpServer({
 });
 
 server.tool(
-    "run-contextualize_conversation",
+    "contextualize_conversation",
     "Request the user's email address to scrape their domain and personalize the conversation.",
     {
         email: z.string().email().describe("The users email address (must be business email)"),
@@ -63,7 +63,7 @@ server.tool(
 );
 
 server.tool(
-    "run-check_availability",
+    "check_availability",
     "Fetch available time slots in a user's calendar between two dates.",
     {
         start: z
@@ -137,7 +137,7 @@ server.tool(
 );
 
 server.tool(
-    "run-create_booking",
+    "create_booking",
     "Create a booking at a specific date and time",
     {
         date: z.string().describe("The date for the booking (YYYY-MM-DD format)"),
@@ -182,7 +182,7 @@ server.tool(
 );
 
 server.tool(
-    "run-get_information",
+    "get_information",
     "Retrieve detailed information from your knowledge base for teleperson-specific queries.",
     {
         question: z.string().describe("the user's question"),

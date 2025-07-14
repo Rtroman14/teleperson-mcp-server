@@ -3,7 +3,8 @@ import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 
 import { server as bookingServer } from "./src/booking.js";
 import { server as websiteServer } from "./src/website.js";
-import { server as salesServer } from "./src/sales.js";
+import { server as salesTextServer } from "./src/sales.text.js";
+import { server as salesVoiceServer } from "./src/sales.voice.js";
 
 const app = express();
 
@@ -19,7 +20,7 @@ let vendorTransport;
 
 app.get("/sales/text/sse", async (req, res) => {
     salesTextTransport = new SSEServerTransport("/sales/text", res);
-    await salesServer.connect(salesTextTransport);
+    await salesTextServer.connect(salesTextTransport);
 });
 
 app.post("/sales/text", async (req, res) => {
@@ -28,7 +29,7 @@ app.post("/sales/text", async (req, res) => {
 
 app.get("/sales/voice/sse", async (req, res) => {
     salesVoiceTransport = new SSEServerTransport("/sales/voice", res);
-    await salesServer.connect(salesVoiceTransport);
+    await salesVoiceServer.connect(salesVoiceTransport);
 });
 
 app.post("/sales/voice", async (req, res) => {
