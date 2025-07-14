@@ -5,6 +5,7 @@ import { server as bookingServer } from "./src/booking.js";
 import { server as websiteServer } from "./src/website.js";
 import { server as salesTextServer } from "./src/sales.text.js";
 import { server as salesVoiceServer } from "./src/sales.voice.js";
+import { server as vendorServer } from "./src/vendor.js";
 
 const app = express();
 
@@ -44,6 +45,8 @@ app.get("/vendor/sse", async (req, res) => {
 app.post("/vendor", async (req, res) => {
     await vendorTransport.handlePostMessage(req, res);
 });
+
+// ! Delete below
 
 app.get("/booking/sse", async (req, res) => {
     bookingTransport = new SSEServerTransport("/booking", res);

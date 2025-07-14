@@ -239,34 +239,35 @@ class TelepersonAPIs {
     };
 
     // Get transactions for a user
-    fetchTransactions = async ({ username, userId }) => {
+    fetchTransactions = async (email) => {
         try {
-            if (!userId) {
+            if (!email) {
                 return {
                     success: false,
                     data: null,
-                    message: "User ID is required",
+                    message: "Email is required",
                 };
             }
-            if (!username) {
-                return {
-                    success: false,
-                    data: null,
-                    message: "Username is required",
-                };
-            }
-            const auth = await this.login(username);
-            if (!auth.success) {
-                return auth;
-            }
+            // Step 1: Login to get access token
+            const auth = await this.login(email);
+            if (!auth.success) return auth;
+
+            // Step 2: Fetch user by email to get userId
+            const user = await this.fetchUserByEmail({ email });
+            if (!user.success) return user;
+            const userId = user.data.id;
+
+            // Step 3: Fetch transactions for userId
             const accessToken = auth.data.access_token;
-            const response = await axios.get(`${this.baseUrl}/transactions?userId=${userId}`, {
+            const response = await axios.get(`${this.baseUrl}/transactions`, {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${accessToken}`,
                     "x-api-key": `Bearer ${this.apiKey}`,
                 },
+                params: { userId },
             });
+
             return {
                 success: true,
                 data: response.data,
@@ -307,7 +308,11 @@ class TelepersonAPIs {
                     data: {
                         vendors: vendors.data,
                         numVendors: vendors.data.length,
-                        companyNames: vendors.data.map((vendor) => vendor.companyName),
+                        vendorNames: vendors.data.map((vendor) => vendor.companyName),
+                        vendorNameAndDescriptions: vendors.data.map((vendor) => ({
+                            name: vendor.companyName,
+                            description: vendor.companyOverview,
+                        })),
                     },
                 };
             }

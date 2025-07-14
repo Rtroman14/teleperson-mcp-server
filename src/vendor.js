@@ -1,103 +1,117 @@
 import "dotenv/config";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import axios from "axios";
+import _ from "./Helpers.js";
+import TelepersonAPIs from "./teleperson-apis.js";
+// import { knowledgeRetrieval } from "./knowledge-retrieval.js";
 
 export const server = new McpServer({
     name: "VendorToolServer",
     version: "1.0.0",
 });
 
+// server.tool(
+//     "get_information",
+//     "Retrieve detailed information from your knowledge base for vendor-specific queries.",
+//     {
+//         question: z.string().describe("the user's question"),
+//         vendorName: z.string().describe("the name of the vendor the user is asking about"),
+//     },
+//     async ({ question }) => {
+//         const result = await knowledgeRetrieval({ question, vendorName });
+
+//         if (!result.success) {
+//             return {
+//                 content: [
+//                     {
+//                         type: "text",
+//                         text: `Error: ${result.message}`,
+//                     },
+//                 ],
+//             };
+//         }
+
+//         return {
+//             content: [
+//                 {
+//                     type: "text",
+//                     text: result.data,
+//                 },
+//             ],
+//         };
+//     }
+// );
+
 server.tool(
-    "contextualize_conversation",
-    "Request the user's email address to scrape their domain and personalize the conversation.",
+    "get_users_vendors",
+    "Retrieve a list of vendors and their descriptions from the user's vendor hub.",
     {
-        email: z.string().email().describe("The users email address (must be business email)"),
-        // url: z.string().url().describe("The website URL to fetch content from"),
+        email: z.string().describe("The user's email"),
     },
     async ({ email }) => {
-        try {
-            const domain = email.split("@").at(-1);
+        const result = await TelepersonAPIs.vendorsByEmail(email);
 
-            const response = await axios.get(`https://r.jina.ai/https://${domain}`, {
-                headers: {
-                    Authorization: `Bearer ${process.env.JINYA_API_KEY}`,
-                    "X-Md-Bullet-List-Marker": "-",
-                    "X-Md-Em-Delimiter": "*",
-                    "X-Remove-Selector": `header, nav, input, iframe, footer, .footer, #footer, #nav, .elementor-button, [data-elementor-type="header"], [style*="display: none"], [style*="visibility: hidden"], aside, script, button, style, img`,
-                    "X-Retain-Images": "none",
-                    "X-With-Generated-Alt": "true",
-                },
-            });
-
-            if (response.statusText !== "OK") {
-                throw new Error("Failed to fetch website content");
-            }
-
+        if (!result.success) {
             return {
                 content: [
                     {
                         type: "text",
-                        text: response.data,
-                    },
-                ],
-            };
-        } catch (error) {
-            return {
-                content: [
-                    {
-                        type: "text",
-                        text: `Error fetching website: ${error.message}`,
+                        text: `There was an error`,
                     },
                 ],
             };
         }
+
+        const message = `The user has ${
+            result.data.numVendors
+        } in their vendor hub. Vendors are below:
+        <vendors>
+        ${JSON.stringify(result.data.vendorNameAndDescriptions, null, 4)}
+        </vendors>`;
+
+        return {
+            content: [
+                {
+                    type: "text",
+                    text: message,
+                },
+            ],
+        };
     }
 );
 
 server.tool(
-    "run-contextualize_conversation",
-    "Request the user's email address to scrape their domain and personalize the conversation.",
+    "get_users_transactions",
+    "Get a list of the user's recent transactions.",
     {
-        email: z.string().email().describe("The users email address (must be business email)"),
-        // url: z.string().url().describe("The website URL to fetch content from"),
+        email: z.string().describe("The user's email"),
     },
     async ({ email }) => {
-        try {
-            const domain = email.split("@").at(-1);
+        const result = await TelepersonAPIs.fetchTransactions(email);
 
-            const response = await axios.get(`https://r.jina.ai/https://${domain}`, {
-                headers: {
-                    Authorization: `Bearer ${process.env.JINYA_API_KEY}`,
-                    "X-Md-Bullet-List-Marker": "-",
-                    "X-Md-Em-Delimiter": "*",
-                    "X-Remove-Selector": `header, nav, input, iframe, footer, .footer, #footer, #nav, .elementor-button, [data-elementor-type="header"], [style*="display: none"], [style*="visibility: hidden"], aside, script, button, style, img`,
-                    "X-Retain-Images": "none",
-                    "X-With-Generated-Alt": "true",
-                },
-            });
-
-            if (response.statusText !== "OK") {
-                throw new Error("Failed to fetch website content");
-            }
-
+        if (!result.success) {
             return {
                 content: [
                     {
                         type: "text",
-                        text: response.data,
-                    },
-                ],
-            };
-        } catch (error) {
-            return {
-                content: [
-                    {
-                        type: "text",
-                        text: `Error fetching website: ${error.message}`,
+                        text: `Error: ${result.message}`,
                     },
                 ],
             };
         }
+
+        const message = `
+        <transactions>
+        ${JSON.stringify(result.data, null, 4)}
+        </transactions>`;
+
+        return {
+            content: [
+                {
+                    type: "text",
+                    text: message,
+                },
+            ],
+        };
     }
 );
