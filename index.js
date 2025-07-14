@@ -3,6 +3,7 @@ import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 
 import { server as bookingServer } from "./src/booking.js";
 import { server as websiteServer } from "./src/website.js";
+import { server as salesServer } from "./src/sales.js";
 
 const app = express();
 
@@ -10,6 +11,38 @@ const app = express();
 
 let bookingTransport;
 let websiteTransport;
+
+let salesTextTransport;
+let salesVoiceTransport;
+
+let vendorTransport;
+
+app.get("/sales/text/sse", async (req, res) => {
+    salesTextTransport = new SSEServerTransport("/sales/text", res);
+    await salesServer.connect(salesTextTransport);
+});
+
+app.post("/sales/text", async (req, res) => {
+    await salesTextTransport.handlePostMessage(req, res);
+});
+
+app.get("/sales/voice/sse", async (req, res) => {
+    salesVoiceTransport = new SSEServerTransport("/sales/voice", res);
+    await salesServer.connect(salesVoiceTransport);
+});
+
+app.post("/sales/voice", async (req, res) => {
+    await salesVoiceTransport.handlePostMessage(req, res);
+});
+
+app.get("/vendor/sse", async (req, res) => {
+    vendorTransport = new SSEServerTransport("/vendor", res);
+    await vendorServer.connect(vendorTransport);
+});
+
+app.post("/vendor", async (req, res) => {
+    await vendorTransport.handlePostMessage(req, res);
+});
 
 app.get("/booking/sse", async (req, res) => {
     bookingTransport = new SSEServerTransport("/booking", res);
