@@ -44,30 +44,36 @@ export const server = new McpServer({
 
 server.tool(
     "get_users_vendors",
-    "Retrieve a list of vendors and their descriptions from the user's vendor hub.",
+    "Retrieve all vendors from a user's vendor hub and vendor lounge.",
     {
         email: z.string().describe("The user's email"),
     },
     async ({ email }) => {
-        const result = await TelepersonAPIs.vendorsByEmail(email);
+        const result = await TelepersonAPIs.allVendors(email);
 
         if (!result.success) {
             return {
                 content: [
                     {
                         type: "text",
-                        text: `There was an error`,
+                        text: `Error fetching vendors: ${result.message || "Unknown error"}`,
                     },
                 ],
             };
         }
 
-        const message = `The user has ${
-            result.data.numVendors
-        } in their vendor hub. Vendors are below:
-        <vendors>
-        ${JSON.stringify(result.data.vendorNameAndDescriptions, null, 4)}
-        </vendors>`;
+        const { hub, lounge } = result.data;
+        const message = `
+Vendor Hub (${hub.numVendors} vendors):
+<vendorHub>
+${JSON.stringify(hub.vendorNameAndDescriptions, null, 4)}
+</vendorHub>
+
+Vendor Lounge (${lounge.numVendors} vendors):
+<vendorLounge>
+${JSON.stringify(lounge.vendorNameAndDescriptions, null, 4)}
+</vendorLounge>
+`;
 
         return {
             content: [

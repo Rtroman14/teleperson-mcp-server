@@ -7,10 +7,9 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Launch Program",
+            "name": "fetch-vendor-lounge.js",
             "skipFiles": ["<node_internals>/**"],
-            "program": "${workspaceFolder}/tests/fetch-slots-between-dates.js"
-            // "program": "${workspaceFolder}/tests/check-availability.js"
+            "program": "${workspaceFolder}/tests/fetch-vendors.js"
         }
     ]
 }
