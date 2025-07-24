@@ -281,6 +281,44 @@ class TelepersonAPIs {
         }
     };
 
+    // Get all vendors assigned to a user
+    vendorHub = async ({ accessToken, userId }) => {
+        try {
+            if (!accessToken) {
+                return {
+                    success: false,
+                    data: null,
+                    message: "Access Token is required",
+                };
+            }
+            if (!userId) {
+                return {
+                    success: false,
+                    data: null,
+                    message: "User ID is required",
+                };
+            }
+
+            const response = await axios.get(`${this.baseUrl}/vendors/top/${userId}`, {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${accessToken}`,
+                    "x-api-key": `Bearer ${this.apiKey}`,
+                },
+            });
+            return {
+                success: true,
+                data: response.data,
+            };
+        } catch (error) {
+            console.error(error.message);
+            return {
+                success: false,
+                message: error.message,
+            };
+        }
+    };
+
     vendorsByEmail = async (email) => {
         try {
             if (!email) {
@@ -293,6 +331,7 @@ class TelepersonAPIs {
             // Step 1: Login to get access token
             const auth = await this.login(email);
             if (!auth.success) return auth;
+            const accessToken = auth.data.access_token;
 
             // Step 2: Fetch user by email to get userId
             const user = await this.fetchUserByEmail({ email });
@@ -300,16 +339,17 @@ class TelepersonAPIs {
             const userId = user.data.id;
 
             // Step 3: Fetch vendors by userId
-            const vendors = await this.fetchVendorsByUserId({ email, userId });
+            const vendors = await this.vendorHub({ accessToken, userId });
+            const nonNullVendors = vendors.data.data.filter((vendor) => vendor.companyName);
 
             if (vendors.success) {
                 return {
                     success: true,
                     data: {
-                        vendors: vendors.data,
-                        numVendors: vendors.data.length,
-                        vendorNames: vendors.data.map((vendor) => vendor.companyName),
-                        vendorNameAndDescriptions: vendors.data.map((vendor) => ({
+                        vendors: nonNullVendors,
+                        numVendors: nonNullVendors.length,
+                        vendorNames: nonNullVendors.map((vendor) => vendor.companyName),
+                        vendorNameAndDescriptions: nonNullVendors.map((vendor) => ({
                             name: vendor.companyName,
                             description: vendor.companyOverview,
                         })),
